@@ -1,3 +1,4 @@
+# Revision 2: retrieve the two final corrected shot assets.
 name: Encrypted media handoff
 on:
   push:
