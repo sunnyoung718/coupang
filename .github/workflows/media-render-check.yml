@@ -1,0 +1,24 @@
+name: Media renderer check
+on:
+  push:
+    paths:
+      - '.github/workflows/media-render-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Create synthetic one-second test video
+        run: |
+          mkdir -p render-check
+          ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc2=size=270x480:rate=24 -f lavfi -i anullsrc=r=48000:cl=stereo -t 1 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac render-check/test.mp4
+          ffprobe -v error -show_entries format=duration:stream=width,height,codec_type -of json render-check/test.mp4 > render-check/check.json
+      - name: Save synthetic test artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: synthetic-render-check
+          path: render-check/
+          retention-days: 1
