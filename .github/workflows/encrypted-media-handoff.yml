@@ -1,0 +1,41 @@
+name: Encrypted media handoff
+on:
+  push:
+    branches: ['media-render/20261011-secure']
+    paths: ['.github/workflows/encrypted-media-handoff.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  handoff:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Check out isolated working branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Prepare cryptography runtime
+        run: |
+          python3 -m venv "$RUNNER_TEMP/media-venv"
+          "$RUNNER_TEMP/media-venv/bin/pip" install --quiet cryptography
+      - name: Prepare ephemeral receiving key
+        run: '"$RUNNER_TEMP/media-venv/bin/python" .media-tools/encrypted_source_handoff.py prepare'
+      - name: Return public key only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: media-public-key
+          path: exchange-public/public.json
+          retention-days: 1
+      - name: Receive authorized request and seal media for its owner
+        run: '"$RUNNER_TEMP/media-venv/bin/python" .media-tools/encrypted_source_handoff.py receive'
+      - name: Return encrypted media archive
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-media-output
+          path: sealed-output/*.sealed
+          retention-days: 1
+          compression-level: 0
+      - name: Remove temporary key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/media-private-key.pem"
