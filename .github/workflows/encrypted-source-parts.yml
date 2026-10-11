@@ -1,0 +1,50 @@
+name: Smaller encrypted media attachments
+on:
+  push:
+    branches: ['media-render/20261011-secure']
+    paths: ['.github/workflows/encrypted-source-parts.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  split:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Fetch encrypted artifact from completed transfer
+        uses: actions/download-artifact@v4
+        with:
+          name: encrypted-media-output
+          path: sealed
+          run-id: 38128354001
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-part-01
+          path: sealed/part-01.sealed
+          retention-days: 1
+          compression-level: 0
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-part-02
+          path: sealed/part-02.sealed
+          retention-days: 1
+          compression-level: 0
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-part-03
+          path: sealed/part-03.sealed
+          retention-days: 1
+          compression-level: 0
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-part-04
+          path: sealed/part-04.sealed
+          retention-days: 1
+          compression-level: 0
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-part-05
+          path: sealed/part-05.sealed
+          retention-days: 1
+          compression-level: 0
