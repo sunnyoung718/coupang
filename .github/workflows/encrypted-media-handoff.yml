@@ -1,4 +1,4 @@
-# Revision 2: retrieve the two final corrected shot assets.
+# Revision 3: recover authorized source media into the current editing session.
 name: Encrypted media handoff
 on:
   push:
